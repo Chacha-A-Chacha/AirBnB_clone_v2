@@ -1,69 +1,67 @@
 #!/usr/bin/python3
-"""
-Define unittests for Amenity class (models/amenity.py)
-"""
+"""test for amenity"""
 import unittest
-from models.base_model import BaseModel
-from models.amenity import Amenity
-from models import storage
-import datetime
-from time import sleep
 import os
+from models.amenity import Amenity
+from models.base_model import BaseModel
+import pep8
 
 
 class TestAmenity(unittest.TestCase):
-    """Test instantiation of Amenity class."""
+    """this will test the Amenity class"""
 
-    # Testing type
-    def test_type(self):
-        a = Amenity()
-        self.assertEqual(Amenity, type(a))
+    @classmethod
+    def setUpClass(cls):
+        """set up for test"""
+        cls.amenity = Amenity()
+        cls.amenity.name = "Breakfast"
 
-    def test_type_public_attr(self):
-        a = Amenity()
-        self.assertEqual(str, type(a.name))
+    @classmethod
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.amenity
 
-    def test_type_id(self):
-        a = Amenity()
-        self.assertEqual(str, type(a.id))
+    def tearDown(self):
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
 
-    def test_type_created_at(self):
-        a = Amenity()
-        self.assertEqual(datetime.datetime, type(a.created_at))
+    def test_pep8_Amenity(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/amenity.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-    def test_type_update_at(self):
-        a = Amenity()
-        self.assertEqual(datetime.datetime, type(a.updated_at))
+    def test_checking_for_docstring_Amenity(self):
+        """checking for docstrings"""
+        self.assertIsNotNone(Amenity.__doc__)
 
-    # Testing id
-    def test_unique_id(self):
-        a1 = Amenity()
-        a2 = Amenity()
-        self.assertNotEqual(a1.id, a2.id)
+    def test_attributes_Amenity(self):
+        """chekcing if amenity have attibutes"""
+        self.assertTrue('id' in self.amenity.__dict__)
+        self.assertTrue('created_at' in self.amenity.__dict__)
+        self.assertTrue('updated_at' in self.amenity.__dict__)
+        self.assertTrue('name' in self.amenity.__dict__)
 
-    # Testing dates
-    def test_consecutive_created_at(self):
-        a1 = Amenity()
-        sleep(0.02)
-        a2 = Amenity()
-        self.assertLess(a1.created_at, a2.created_at)
+    def test_is_subclass_Amenity(self):
+        """test if Amenity is subclass of Basemodel"""
+        self.assertTrue(issubclass(self.amenity.__class__, BaseModel), True)
 
-    def test_consecutive_updated_at(self):
-        a1 = Amenity()
-        sleep(0.02)
-        a2 = Amenity()
-        self.assertLess(a1.updated_at, a2.updated_at)
+    def test_attribute_types_Amenity(self):
+        """test attribute type for Amenity"""
+        self.assertEqual(type(self.amenity.name), str)
 
-    # Testing new attributes creation
-    def test_new_attr(self):
-        a = Amenity()
-        a.name = "Holberton"
-        a.email = "ejemplo@gato.com"
-        self.assertTrue(hasattr(a, "name") and hasattr(a, "email"))
+    def test_save_Amenity(self):
+        """test if the save works"""
+        self.amenity.save()
+        self.assertNotEqual(self.amenity.created_at, self.amenity.updated_at)
 
-    # Test update storage variable
-    def test_bm_updated_storage(self):
-        a = Amenity()
-        a_key = "Amenity." + a.id
-        keys = storage.all().keys()
-        self.assertTrue(a_key in keys)
+    def test_to_dict_Amenity(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.amenity), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,66 +1,69 @@
 #!/usr/bin/python3
-"""
-Define unittests for State class (models/state.py)
-"""
+"""test for state"""
 import unittest
-from models.base_model import BaseModel
-from models.state import State
-from models import storage
-import datetime
-from time import sleep
 import os
+from models.state import State
+from models.base_model import BaseModel
+import pep8
 
 
 class TestState(unittest.TestCase):
-    """Test instantiation of State class."""
+    """this will test the State class"""
 
-    # Testing type
-    def test_type(self):
-        s = State()
-        self.assertEqual(State, type(s))
+    @classmethod
+    def setUpClass(cls):
+        """set up for test"""
+        cls.state = State()
+        cls.state.name = "CA"
 
-    def test_type_public_attr(self):
-        s = State()
-        self.assertEqual(str, type(s.id))
-        self.assertEqual(str, type(s.name))
+    @classmethod
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.state
 
-    def test_type_created_at(self):
-        s = State()
-        self.assertEqual(datetime.datetime, type(s.created_at))
+    def tearDown(self):
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
 
-    def test_type_update_at(self):
-        s = State()
-        self.assertEqual(datetime.datetime, type(s.updated_at))
+    def test_pep8_Review(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/state.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-    # Testing id
-    def test_unique_id(self):
-        s1 = State()
-        s2 = State()
-        self.assertNotEqual(s1.id, s2.id)
+    def test_checking_for_docstring_State(self):
+        """checking for docstrings"""
+        self.assertIsNotNone(State.__doc__)
 
-    # Testing dates
-    def test_consecutive_created_at(self):
-        s1 = State()
-        sleep(0.02)
-        s2 = State()
-        self.assertLess(s1.created_at, s2.created_at)
+    def test_attributes_State(self):
+        """chekcing if State have attributes"""
+        self.assertTrue('id' in self.state.__dict__)
+        self.assertTrue('created_at' in self.state.__dict__)
+        self.assertTrue('updated_at' in self.state.__dict__)
+        self.assertTrue('name' in self.state.__dict__)
 
-    def test_consecutive_updated_at(self):
-        s1 = State()
-        sleep(0.02)
-        s2 = State()
-        self.assertLess(s1.updated_at, s2.updated_at)
+    def test_is_subclass_State(self):
+        """test if State is subclass of BaseModel"""
+        self.assertTrue(issubclass(self.state.__class__, BaseModel), True)
 
-    # Testing new attributes creation
-    def test_new_attr(self):
-        s = State()
-        s.name = "Holberton"
-        s.email = "ejemplo@gato.com"
-        self.assertTrue(hasattr(s, "name") and hasattr(s, "email"))
+    def test_attribute_types_State(self):
+        """test attribute type for State"""
+        self.assertEqual(type(self.state.name), str)
 
-    # Test update storage variable
-    def test_bm_updated_storage(self):
-        s = State()
-        s_key = "State." + s.id
-        keys = storage.all().keys()
-        self.assertTrue(s_key in keys)
+    @unittest.skipIf(os.environ['HBNB_TYPE_STORAGE'] == 'db',
+                     'Invalid storage mode')
+    def test_save_State(self):
+        """test if the save works"""
+        self.state.save()
+        self.assertNotEqual(self.state.created_at, self.state.updated_at)
+
+    def test_to_dict_State(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.state), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

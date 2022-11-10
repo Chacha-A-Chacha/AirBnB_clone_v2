@@ -1,16 +1,14 @@
 #!/usr/bin/python3
-# Fabfile to distribute an archive to a web server.
+"""Compress web static package
+"""
 import os.path
-from fabric.api import env
-from fabric.api import put
-from fabric.api import run
+from fabric.api import *
 
-env.hosts = ["104.196.168.90", "35.196.46.172"]
+env.hosts = ["44.210.236.120", "34.204.181.124"]
 
 
 def do_deploy(archive_path):
     """Distributes an archive to a web server.
-
     Args:
         archive_path (str): The path of the archive to distribute.
     Returns:

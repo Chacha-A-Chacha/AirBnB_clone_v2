@@ -1,68 +1,75 @@
 #!/usr/bin/python3
-"""
-Define unittests for Review class (models/review.py)
-"""
+"""test for review"""
 import unittest
-from models.base_model import BaseModel
-from models.review import Review
-from models import storage
-import datetime
-from time import sleep
 import os
+from models.review import Review
+from models.base_model import BaseModel
+import pep8
 
 
 class TestReview(unittest.TestCase):
-    """Test instantiation of User class."""
+    """this will test the place class"""
 
-    # Testing type
-    def test_type(self):
-        r = Review()
-        self.assertEqual(Review, type(r))
+    @classmethod
+    def setUpClass(cls):
+        """set up for test"""
+        cls.rev = Review()
+        cls.rev.place_id = "4321-dcba"
+        cls.rev.user_id = "123-bca"
+        cls.rev.text = "The srongest in the Galaxy"
 
-    def test_type_public_attr(self):
-        r = Review()
-        self.assertEqual(str, type(r.id))
-        self.assertEqual(str, type(r.place_id))
-        self.assertEqual(str, type(r.user_id))
-        self.assertEqual(str, type(r.text))
+    @classmethod
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.rev
 
-    def test_type_created_at(self):
-        r = Review()
-        self.assertEqual(datetime.datetime, type(r.created_at))
+    def tearDown(self):
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
 
-    def test_type_update_at(self):
-        r = Review()
-        self.assertEqual(datetime.datetime, type(r.updated_at))
+    def test_pep8_Review(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/review.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-    # Testing id
-    def test_unique_id(self):
-        r1 = Review()
-        r2 = Review()
-        self.assertNotEqual(r1.id, r2.id)
+    def test_checking_for_docstring_Review(self):
+        """checking for docstrings"""
+        self.assertIsNotNone(Review.__doc__)
 
-    # Testing dates
-    def test_consecutive_created_at(self):
-        r1 = Review()
-        sleep(0.02)
-        r2 = Review()
-        self.assertLess(r1.created_at, r2.created_at)
+    def test_attributes_review(self):
+        """chekcing if review have attributes"""
+        self.assertTrue('id' in self.rev.__dict__)
+        self.assertTrue('created_at' in self.rev.__dict__)
+        self.assertTrue('updated_at' in self.rev.__dict__)
+        self.assertTrue('place_id' in self.rev.__dict__)
+        self.assertTrue('text' in self.rev.__dict__)
+        self.assertTrue('user_id' in self.rev.__dict__)
 
-    def test_consecutive_updated_at(self):
-        r1 = Review()
-        sleep(0.02)
-        r2 = Review()
-        self.assertLess(r1.updated_at, r2.updated_at)
+    def test_is_subclass_Review(self):
+        """test if review is subclass of BaseModel"""
+        self.assertTrue(issubclass(self.rev.__class__, BaseModel), True)
 
-    # Testing new attributes creation
-    def test_new_attr(self):
-        r = Review()
-        r.name = "Holberton"
-        r.email = "ejemplo@gato.com"
-        self.assertTrue(hasattr(r, "name") and hasattr(r, "email"))
+    def test_attribute_types_Review(self):
+        """test attribute type for Review"""
+        self.assertEqual(type(self.rev.text), str)
+        self.assertEqual(type(self.rev.place_id), str)
+        self.assertEqual(type(self.rev.user_id), str)
 
-    # Test update storage variable
-    def test_bm_updated_storage(self):
-        r = Review()
-        r_key = "Review." + r.id
-        keys = storage.all().keys()
-        self.assertTrue(r_key in keys)
+    @unittest.skipIf(os.environ['HBNB_TYPE_STORAGE'] == 'db',
+                     'Invalid storage mode')
+    def test_save_Review(self):
+        """test if the save works"""
+        self.rev.save()
+        self.assertNotEqual(self.rev.created_at, self.rev.updated_at)
+
+    def test_to_dict_Review(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.rev), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

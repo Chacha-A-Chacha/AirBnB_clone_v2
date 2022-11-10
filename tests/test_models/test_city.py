@@ -1,67 +1,72 @@
 #!/usr/bin/python3
-"""
-Define unittests for City class (models/city.py)
-"""
+"""test for city"""
 import unittest
-from models.base_model import BaseModel
-from models.city import City
-from models import storage
-import datetime
-from time import sleep
 import os
+from models.city import City
+from models.base_model import BaseModel
+import pep8
 
 
 class TestCity(unittest.TestCase):
-    """Test instantiation of City class."""
+    """this will test the city class"""
 
-    # Testing type
-    def test_type(self):
-        c = City()
-        self.assertEqual(City, type(c))
+    @classmethod
+    def setUpClass(cls):
+        """set up for test"""
+        cls.city = City()
+        cls.city.name = "LA"
+        cls.city.state_id = "CA"
 
-    def test_type_public_attr(self):
-        c = City()
-        self.assertEqual(str, type(c.id))
-        self.assertEqual(str, type(c.state_id))
-        self.assertEqual(str, type(c.name))
+    @classmethod
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.city
 
-    def test_type_created_at(self):
-        c = City()
-        self.assertEqual(datetime.datetime, type(c.created_at))
+    def tearDown(self):
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
 
-    def test_type_update_at(self):
-        c = City()
-        self.assertEqual(datetime.datetime, type(c.updated_at))
+    def test_pep8_City(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/city.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-    # Testing id
-    def test_unique_id(self):
-        c1 = City()
-        c2 = City()
-        self.assertNotEqual(c1.id, c2.id)
+    def test_checking_for_docstring_City(self):
+        """checking for docstrings"""
+        self.assertIsNotNone(City.__doc__)
 
-    # Testing dates
-    def test_consecutive_created_at(self):
-        c1 = City()
-        sleep(0.02)
-        c2 = City()
-        self.assertLess(c1.created_at, c2.created_at)
+    def test_attributes_City(self):
+        """chekcing if City have attributes"""
+        self.assertTrue('id' in self.city.__dict__)
+        self.assertTrue('created_at' in self.city.__dict__)
+        self.assertTrue('updated_at' in self.city.__dict__)
+        self.assertTrue('state_id' in self.city.__dict__)
+        self.assertTrue('name' in self.city.__dict__)
 
-    def test_consecutive_updated_at(self):
-        c1 = City()
-        sleep(0.02)
-        c2 = City()
-        self.assertLess(c1.updated_at, c2.updated_at)
+    def test_is_subclass_City(self):
+        """test if City is subclass of Basemodel"""
+        self.assertTrue(issubclass(self.city.__class__, BaseModel), True)
 
-    # Testing new attributes creation
-    def test_new_attr(self):
-        c = City()
-        c.name = "Holberton"
-        c.email = "ejemplo@gato.com"
-        self.assertTrue(hasattr(c, "name") and hasattr(c, "email"))
+    def test_attribute_types_City(self):
+        """test attribute type for City"""
+        self.assertEqual(type(self.city.name), str)
+        self.assertEqual(type(self.city.state_id), str)
 
-    # Test update storage variable
-    def test_bm_updated_storage(self):
-        c = City()
-        c_key = "City." + c.id
-        keys = storage.all().keys()
-        self.assertTrue(c_key in keys)
+    @unittest.skipIf(os.environ['HBNB_TYPE_STORAGE'] == 'db',
+                     'Invalid storage mode')
+    def test_save_City(self):
+        """test if the save works"""
+        self.city.save()
+        self.assertNotEqual(self.city.created_at, self.city.updated_at)
+
+    def test_to_dict_City(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.city), True)
+
+
+if __name__ == "__main__":
+    unittest.main()
